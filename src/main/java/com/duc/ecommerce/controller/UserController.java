@@ -2,6 +2,7 @@ package com.duc.ecommerce.controller;
 
 
 import com.duc.ecommerce.dto.request.UserCreateRequest;
+import com.duc.ecommerce.dto.request.UserLoginRequest;
 import com.duc.ecommerce.dto.request.UserUpdateRequest;
 import com.duc.ecommerce.dto.response.UserCursorResponse;
 import com.duc.ecommerce.dto.response.UserResponse;
@@ -76,6 +77,12 @@ public class UserController {
     UserCursorResponse readAllCursorPage (@RequestParam(required = false) Integer cursor,
                                           @RequestParam(defaultValue = "2") int limit){
         return service.readAllCursorPage(cursor,limit);
+    }
+
+    //login
+    @PostMapping("/login")
+    boolean login(@RequestBody UserLoginRequest request) {
+        return service.login(request);
     }
 
 }
