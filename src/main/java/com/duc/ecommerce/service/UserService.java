@@ -116,6 +116,7 @@ public class UserService {
                     return response;
                 });
     }
+
     public UserCursorResponse readAllCursorPage(Integer cursor,
                                                 int limit){
         if (cursor == null)
@@ -126,14 +127,18 @@ public class UserService {
                 PageRequest.of(0,limit + 1)
         );
 
+        //hasNext
         boolean hasNext = users.size() > limit;
+
         if (hasNext)
             users = users.subList(0,limit);
 
+        //nextCursor
         String nextCursor = null;
         if (!users.isEmpty())
             nextCursor = String.valueOf(users.get(users.size()-1).getId());
 
+        //content
         List<UserResponse> content = users.stream().map(user -> {
             UserResponse response = mapper.toUserResponse(user);
             String id = "user_"+user.getId();
