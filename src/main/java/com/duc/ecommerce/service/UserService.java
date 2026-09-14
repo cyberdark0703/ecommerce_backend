@@ -155,4 +155,11 @@ public class UserService {
         return userCursorResponse;
     }
 
+    public boolean login (UserLoginRequest request){
+        User user = repository.findByName(request.getName())
+                .orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));
+        return encoder.matches( request.getPassword(),
+                                user.getPassword());
+    }
+
 }

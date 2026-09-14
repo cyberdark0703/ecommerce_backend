@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository<User,String> {
             Pageable pageable
     );
 
+    Optional<User> findByName(String name);
+
 }
