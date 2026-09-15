@@ -17,6 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +34,8 @@ public class UserService {
     UserRepository repository;
     UserMapper mapper;
     PasswordEncoder encoder;
+    AuthenticationManager manager;
+
     public UserResponse create (UserCreateRequest request){
         User user = mapper.toUser(request);
         String hashedPassword = encoder.encode(user.getPassword());
@@ -154,12 +160,25 @@ public class UserService {
 
         return userCursorResponse;
     }
-
+    // login
     public boolean login (UserLoginRequest request){
-        User user = repository.findByName(request.getName())
-                .orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));
-        return encoder.matches( request.getPassword(),
-                                user.getPassword());
+        /*User user = repository.findByName(request.getName())
+                .orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));*/
+
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                request.getName(),
+                request.getPassword());
+
+        Authentication authentication = manager.authenticate(token);
+        System.out.println(authentication.getName());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        Authentication currentAuthentication = SecurityContextHolder
+                .getContext().getAuthentication();
+        System.out.println(currentAuthentication.getName());
+
+        return true;
     }
 
 }
