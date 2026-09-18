@@ -60,5 +60,14 @@ public class ProductService {
         return responses;
     }
 
+    public ProductResponse read (String id){
+        Product product = repository.findById(id).orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));
+
+        ProductResponse response = mapper.toProductResponse(product);
+        String id_response = "product_"+product.getId();
+        response.setId(id_response);
+        return response;
+    }
+
 
 }

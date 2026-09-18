@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product,String> {
@@ -24,4 +25,5 @@ public interface ProductRepository extends JpaRepository<Product,String> {
             @Param("maxPrice") BigDecimal maxPrice,
             @Param("categoryName") String categoryName
     );
+    Optional<Product> findById(String id);
 }

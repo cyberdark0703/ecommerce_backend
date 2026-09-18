@@ -9,6 +9,7 @@ import com.duc.ecommerce.exception.EcommerceException;
 import com.duc.ecommerce.exception.ErrorCode;
 import com.duc.ecommerce.mapper.UserMapper;
 import com.duc.ecommerce.repository.UserRepository;
+import com.duc.ecommerce.security.JwtService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class UserService {
     UserMapper mapper;
     PasswordEncoder encoder;
     AuthenticationManager manager;
+    JwtService jwtService;
 
     public UserResponse create (UserCreateRequest request){
         User user = mapper.toUser(request);
@@ -161,24 +163,21 @@ public class UserService {
         return userCursorResponse;
     }
     // login
-    public boolean login (UserLoginRequest request){
+    public String login (UserLoginRequest request){
         /*User user = repository.findByName(request.getName())
                 .orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));*/
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                request.getName(),
-                request.getPassword());
+        UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken(
+                        request.getName(),
+                        request.getPassword());
 
-        Authentication authentication = manager.authenticate(token);
-        System.out.println(authentication.getName());
+        Authentication authentication =
+                manager.authenticate(token);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String username = authentication.getName();
 
-        Authentication currentAuthentication = SecurityContextHolder
-                .getContext().getAuthentication();
-        System.out.println(currentAuthentication.getName());
-
-        return true;
+        return jwtService.generateToken(username);
     }
 
 }
