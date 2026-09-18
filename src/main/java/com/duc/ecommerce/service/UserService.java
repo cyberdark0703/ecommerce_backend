@@ -9,6 +9,7 @@ import com.duc.ecommerce.exception.EcommerceException;
 import com.duc.ecommerce.exception.ErrorCode;
 import com.duc.ecommerce.mapper.UserMapper;
 import com.duc.ecommerce.repository.UserRepository;
+import com.duc.ecommerce.security.JwtService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +35,9 @@ public class UserService {
     UserRepository repository;
     UserMapper mapper;
     PasswordEncoder encoder;
+    AuthenticationManager manager;
+    JwtService jwtService;
+
     public UserResponse create (UserCreateRequest request){
         User user = mapper.toUser(request);
         String hashedPassword = encoder.encode(user.getPassword());
@@ -154,12 +162,22 @@ public class UserService {
 
         return userCursorResponse;
     }
+    // login
+    public String login (UserLoginRequest request){
+        /*User user = repository.findByName(request.getName())
+                .orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));*/
 
-    public boolean login (UserLoginRequest request){
-        User user = repository.findByName(request.getName())
-                .orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));
-        return encoder.matches( request.getPassword(),
-                                user.getPassword());
+        UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken(
+                        request.getName(),
+                        request.getPassword());
+
+        Authentication authentication =
+                manager.authenticate(token);
+
+        String username = authentication.getName();
+
+        return jwtService.generateToken(username);
     }
 
 }

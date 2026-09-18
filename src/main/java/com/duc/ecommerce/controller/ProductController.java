@@ -25,6 +25,11 @@ public class ProductController {
         return service.create(request);
     }
 
+    @GetMapping("/read_one/{id}")
+    ProductResponse read (@PathVariable String id){
+        return service.read(id);
+    }
+
     @GetMapping("/findbypricebetweenandcategory")
     List<ProductResponse> findByPriceBetweenAndCategory (@RequestParam BigDecimal minPrice,
                                                          @RequestParam BigDecimal maxPrice,
