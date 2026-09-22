@@ -75,16 +75,39 @@ public class UserService {
     }
 
     public UserResponse update(String id,UserUpdateRequest request){
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String username = authentication.getName();
+
+        System.out.println("CURRENT USER = " + username);
+
         User user = repository.findById(id).orElseThrow(() -> new EcommerceException(ErrorCode.USER_NOT_FOUND));
+
+        if (!username.equalsIgnoreCase(user.getName())){
+            throw new EcommerceException(ErrorCode.ACCESS_DENIED);
+        }
+
         user.setName(request.getName());
-        user.setPassword(request.getPassword());
+        String hashedPassword = encoder.encode(request.getPassword());
+        user.setPassword(hashedPassword);
         repository.save(user);
         return mapper.toUserResponse(user);
 
     }
 
     public void delete(String id){
-        repository.deleteById(id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        System.out.println("CURRENT USER = " + username);
+
+        User user = repository.findById(id).orElseThrow((() -> new EcommerceException(ErrorCode.USER_NOT_FOUND)));
+
+        if (!username.equalsIgnoreCase(user.getName())){
+            throw new EcommerceException(ErrorCode.ACCESS_DENIED);
+        }
+
+        repository.delete(user);
 
     }
 

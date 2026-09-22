@@ -12,9 +12,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler (exception = EcommerceException.class)
     ResponseEntity<ExceptionResponse> handlingEcommerceException (EcommerceException exception){
         ErrorCode errorCode = exception.getErrorCode();
+
+        System.out.println("ERROR CODE = " + errorCode);
+        System.out.println("HTTP CODE = " + errorCode.getHttpcode());
+
         ExceptionResponse response = new ExceptionResponse();
         response.setCode(errorCode.getCode());
         response.setMessage(errorCode.getMessage());
+
         return ResponseEntity.status(errorCode.getHttpcode()).body(response);
     }
 

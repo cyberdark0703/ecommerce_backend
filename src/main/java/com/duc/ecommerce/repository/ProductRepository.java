@@ -26,4 +26,5 @@ public interface ProductRepository extends JpaRepository<Product,String> {
             @Param("categoryName") String categoryName
     );
     Optional<Product> findById(String id);
+    Optional<Product> findByNameContainingIgnoreCase(String name);
 }
