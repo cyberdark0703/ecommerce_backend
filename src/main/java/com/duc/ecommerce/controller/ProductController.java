@@ -1,6 +1,7 @@
 package com.duc.ecommerce.controller;
 
 import com.duc.ecommerce.dto.request.ProductCreateRequest;
+import com.duc.ecommerce.dto.request.ProductUpdateRequest;
 import com.duc.ecommerce.dto.response.ProductResponse;
 import com.duc.ecommerce.service.ProductService;
 import lombok.AccessLevel;
@@ -35,6 +36,15 @@ public class ProductController {
                                                          @RequestParam BigDecimal maxPrice,
                                                          @RequestParam String categoryName){
         return service.findByPriceBetweenAndCategory(minPrice,maxPrice,categoryName);
+    }
+    @PutMapping("/update/{id}")
+    ProductResponse update (@PathVariable String id, @RequestBody ProductUpdateRequest request){
+        return service.update(id,request);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    void delete(@PathVariable String id){
+         service.delete(id);
     }
 
 }

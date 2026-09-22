@@ -1,6 +1,7 @@
 package com.duc.ecommerce.service;
 
 import com.duc.ecommerce.dto.request.ProductCreateRequest;
+import com.duc.ecommerce.dto.request.ProductUpdateRequest;
 import com.duc.ecommerce.dto.response.ProductResponse;
 import com.duc.ecommerce.entity.Category;
 import com.duc.ecommerce.entity.Product;
@@ -67,6 +68,28 @@ public class ProductService {
         String id_response = "product_"+product.getId();
         response.setId(id_response);
         return response;
+    }
+    public ProductResponse update(String id, ProductUpdateRequest request){
+        Product product = repository.findById(id).orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));
+
+        product.setName(request.getName());
+        product.setPrice(request.getPrice());
+
+        Category category = categoryRepository.findByName(request.getCategory_name());
+        product.setCategory(category);
+
+
+        repository.save(product);
+
+        ProductResponse response = mapper.toProductResponse(product);
+        String id_response = "product_" + product.getId();
+        response.setId(id_response);
+
+        return response;
+    }
+    public void delete (String id){
+        Product product = repository.findById(id).orElseThrow((() -> new EcommerceException(ErrorCode.USER_NOT_FOUND)));
+        repository.delete(product);
     }
 
 

@@ -26,11 +26,37 @@ public class SecurityConfig {
         return http
                 .csrf(csrf->csrf.disable())
                 .authorizeHttpRequests(auth->auth
+                        .requestMatchers("/user/update/**")
+                        .authenticated()
+
                         .requestMatchers("/user/**")
                         .permitAll()
+
+                        .requestMatchers("/product/create")
+                        .hasAuthority("PRODUCT_CREATE")
+
+                        .requestMatchers("/product/update/**")
+                        //.hasRole("ADMIN")
+                        .hasAuthority("PRODUCT_UPDATE")
+
+                        .requestMatchers("/product/delete/**")
+                        //.hasRole("ADMIN")
+                        .hasAuthority("PRODUCT_DELETE")
+
                         .anyRequest()
                         .authenticated())
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint()))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint())
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            System.out.println("ACCESS DENIED HANDLER RUN");
+                            System.out.println("BEFORE STATUS = " + response.getStatus());
+
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                            System.out.println("AFTER STATUS = " + response.getStatus());
+                        })
+                )
+
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -45,7 +71,10 @@ public class SecurityConfig {
 
     @Bean
     AuthenticationEntryPoint authenticationEntryPoint() {
-        return (request, response, authException) ->
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        return (request, response, authException) ->{
+            System.out.println("AUTHENTICATION ENTRY POINT RUN");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        };
+
     }
 }

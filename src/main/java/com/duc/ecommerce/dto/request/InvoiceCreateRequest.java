@@ -11,7 +11,5 @@ import java.util.List;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InvoiceCreateRequest {
-    @NotBlank (message = "user_name cannot null")
-    String user_name;
     List<String> products_name;
 }
