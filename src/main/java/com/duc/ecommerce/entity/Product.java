@@ -27,4 +27,6 @@ public class Product {
     List<Invoice> invoices;
 
     int price;
+
+    String imageName;
 }

@@ -16,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -89,7 +90,31 @@ public class ProductService {
     }
     public void delete (String id){
         Product product = repository.findById(id).orElseThrow((() -> new EcommerceException(ErrorCode.USER_NOT_FOUND)));
+
+        String imageName = product.getImageName();
+
+        String uploadDir = "E:\\ecommerce\\upload";
+        File imageFile = new File(uploadDir, imageName);
+
+        if (imageFile.exists()) {
+            imageFile.delete();
+        }
+
         repository.delete(product);
+    }
+
+    public void saveImageName(String id, String fileName) {
+        Product product = repository.findById(id)
+                .orElseThrow(() -> new EcommerceException(ErrorCode.USER_NOT_FOUND));
+
+        product.setImageName(fileName);
+
+        repository.save(product);
+    }
+
+    public Product readEntity(String id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new EcommerceException(ErrorCode.USER_NOT_FOUND));
     }
 
 
