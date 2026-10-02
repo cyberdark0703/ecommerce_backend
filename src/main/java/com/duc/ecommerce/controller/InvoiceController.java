@@ -8,6 +8,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/invoice")
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -23,5 +25,10 @@ public class InvoiceController {
     @GetMapping("/read_one/{id}")
     public InvoiceResponse read (@PathVariable String id){
         return service.read(id);
+    }
+
+    @GetMapping("/readAll")
+    public List<InvoiceResponse> readAll (){
+        return service.readAll();
     }
 }

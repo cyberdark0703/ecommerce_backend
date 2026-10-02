@@ -140,6 +140,38 @@ public class InvoiceService {
         System.out.println(invoice.getTotal_price());*/
 
         return invoiceResponse;
+    }
 
+    public List<InvoiceResponse> readAll (){
+
+        return repository.findAllWithDetails()
+                .stream()
+                .map(invoice -> {
+                    InvoiceResponse response = new InvoiceResponse();
+                    String id = "invoice_"+invoice.getId();
+                    response.setId(id);
+
+                    response.setUser_name(invoice.getUser().getName());
+
+                    response.setBorn(invoice.getBorn());
+
+                    List<ProductResponse> productResponses = new ArrayList<>() ;
+                    for (Product product : invoice.getProducts()){
+                        ProductResponse productResponse = new ProductResponse();
+                        String productId = "product_"+product.getId();
+                        productResponse.setId(productId);
+                        productResponse.setName(product.getName());
+                        productResponse.setCategory_name(product.getCategory().getName());
+                        productResponse.setPrice(product.getPrice());
+
+                        productResponses.add(productResponse);
+                    }
+
+                    response.setProducts(productResponses);
+
+                    response.setTotal_price(invoice.getTotal_price());
+                    return response;
+                })
+                .toList();
     }
 }
