@@ -14,6 +14,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -62,6 +65,7 @@ public class ProductService {
         return responses;
     }
 
+    @Cacheable("products")
     public ProductResponse read (String id){
         Product product = repository.findById(id).orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));
 
@@ -70,6 +74,8 @@ public class ProductService {
         response.setId(id_response);
         return response;
     }
+
+    @CachePut(value = "products", key = "#id")
     public ProductResponse update(String id, ProductUpdateRequest request){
         Product product = repository.findById(id).orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));
 
@@ -88,16 +94,20 @@ public class ProductService {
 
         return response;
     }
+
+    @CacheEvict(value = "products", key = "#id")
     public void delete (String id){
         Product product = repository.findById(id).orElseThrow((() -> new EcommerceException(ErrorCode.USER_NOT_FOUND)));
 
         String imageName = product.getImageName();
 
-        String uploadDir = "E:\\ecommerce\\upload";
-        File imageFile = new File(uploadDir, imageName);
+        if (imageName != null) {
+            String uploadDir = "E:\\ecommerce\\upload";
+            File imageFile = new File(uploadDir, imageName);
 
-        if (imageFile.exists()) {
-            imageFile.delete();
+            if (imageFile.exists()) {
+                imageFile.delete();
+            }
         }
 
         repository.delete(product);
