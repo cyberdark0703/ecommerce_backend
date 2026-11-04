@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatusCode;
 @AllArgsConstructor
 public enum ErrorCode {
     USER_NOT_FOUND(1,"khong tim thay user",HttpStatus.NOT_FOUND),
-    INVALID_PASSWORD(2, "mat khau sai ",HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD(2, "mat khau sai ",HttpStatus.UNAUTHORIZED),
     INVALID_VALIDATION(3,"",HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_FOUND(4,"ko tim thay category tuong ung",HttpStatus.NOT_FOUND),
     CATEGORY_ALREADY_EXISTS(5,"da ton tai category day",HttpStatus.CONFLICT),

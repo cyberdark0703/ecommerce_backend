@@ -28,6 +28,17 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
+    @ExceptionHandler(Exception.class)
+    ResponseEntity<ExceptionResponse> handlingUnwantedException(Exception exception) {
+        ExceptionResponse response = new ExceptionResponse();
+        response.setCode(9999);
+        response.setMessage("Unwanted error");
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
+    }
+
     @ExceptionHandler (exception = EcommerceException.class)
     ResponseEntity<ExceptionResponse> handlingEcommerceException (EcommerceException exception){
         ErrorCode errorCode = exception.getErrorCode();
