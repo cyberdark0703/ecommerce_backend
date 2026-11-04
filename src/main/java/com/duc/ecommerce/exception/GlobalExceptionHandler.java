@@ -1,6 +1,7 @@
 package com.duc.ecommerce.exception;
 
 import com.duc.ecommerce.dto.response.ExceptionResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -8,6 +9,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(Exception.class)
+    ResponseEntity<ExceptionResponse> handlingUnwantedException(Exception exception) {
+        ExceptionResponse response = new ExceptionResponse();
+        response.setCode(9999);
+        response.setMessage("Unwanted error");
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
+    }
 
     @ExceptionHandler (exception = EcommerceException.class)
     ResponseEntity<ExceptionResponse> handlingEcommerceException (EcommerceException exception){
@@ -29,8 +41,11 @@ public class GlobalExceptionHandler {
         ExceptionResponse response = new ExceptionResponse();
 
         String message = exception.getBindingResult()
-                        .getFieldError()
-                .getDefaultMessage();
+                .getFieldError() != null
+                ? exception.getBindingResult()
+                .getFieldError()
+                .getDefaultMessage()
+                : errorCode.getMessage();
 
         response.setCode(errorCode.getCode());
         response.setMessage(message);

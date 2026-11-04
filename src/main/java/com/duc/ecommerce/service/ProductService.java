@@ -67,7 +67,7 @@ public class ProductService {
 
     @Cacheable("products")
     public ProductResponse read (String id){
-        Product product = repository.findById(id).orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));
+        Product product = repository.findById(id).orElseThrow(()-> new EcommerceException(ErrorCode.PRODUCT_NOT_FOUND));
 
         ProductResponse response = mapper.toProductResponse(product);
         String id_response = "product_"+product.getId();
