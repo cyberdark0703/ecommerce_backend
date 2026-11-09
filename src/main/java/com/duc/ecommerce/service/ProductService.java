@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -95,6 +96,7 @@ public class ProductService {
         return response;
     }
 
+    @PreAuthorize("hasAuthority('PRODUCT_DELETE')")
     @CacheEvict(value = "products", key = "#id")
     public void delete (String id){
         Product product = repository.findById(id).orElseThrow((() -> new EcommerceException(ErrorCode.USER_NOT_FOUND)));
