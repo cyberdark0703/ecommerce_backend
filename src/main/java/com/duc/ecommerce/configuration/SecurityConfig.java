@@ -10,41 +10,91 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityConfig {
     JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http ) throws Exception{
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf->csrf.disable())
-                .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/user/update/**")
-                        .authenticated()
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/user/**")
-                        .permitAll()
+                                // USER
 
-                        .requestMatchers("/product/create")
-                        .hasAuthority("PRODUCT_CREATE")
+                                // API công khai
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/user/create",
+                                        "/user/login"
+                                )
+                                .permitAll()
 
-                        .requestMatchers("/product/update/**")
-                        //.hasRole("ADMIN")
-                        .hasAuthority("PRODUCT_UPDATE")
+                                // API chỉ dành cho ADMIN
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/user/read_one/**",
+                                        "/user/readAll",
+                                        "/user/readallcontainingignorecase/**",
+                                        "/user/readallbyorderbynameasc",
+                                        "/user/readalloffsetpage",
+                                        "/user/readallcursorpage"
+                                )
+                                .hasRole("ADMIN")
 
-                        .requestMatchers("/product/delete/**")
-                        //.hasRole("ADMIN")
-                        .hasAuthority("PRODUCT_DELETE")
+                                .requestMatchers(HttpMethod.DELETE, "/user/delete/**")
+                                .hasRole("ADMIN")
 
-                        .anyRequest()
-                        .authenticated())
+                                // API cập nhật tài khoản
+                                .requestMatchers(HttpMethod.PUT, "/user/update/**")
+                                .authenticated()
+
+                                // PRODUCT - API công khai
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/product/read_one/**",
+                                        "/product/findbypricebetweenandcategory",
+                                        "/product/image/**"
+                                )
+                                .permitAll()
+
+                                // PRODUCT - API cần quyền
+                                .requestMatchers(HttpMethod.POST, "/product/create")
+                                .hasAuthority("PRODUCT_CREATE")
+
+                                .requestMatchers(HttpMethod.PUT,
+                                        "/product/update/**",
+                                        "/product/image/**")
+                                .hasAuthority("PRODUCT_UPDATE")
+
+                                .requestMatchers(HttpMethod.DELETE, "/product/delete/**")
+                                .hasAuthority("PRODUCT_DELETE")
+
+                                // CATEGORY - API cần quyền
+                                .requestMatchers(HttpMethod.POST, "/category/create")
+                                .hasAuthority("CATEGORY_CREATE")
+
+                                // INVOICE - ADMIN được đọc tất cả hóa đơn
+                                .requestMatchers(HttpMethod.GET, "/invoice/readAll")
+                                .hasRole("ADMIN")
+
+                                // INVOICE - các API khác yêu cầu đăng nhập
+                                .requestMatchers("/invoice/**")
+                                .authenticated()
+
+                                // API khác
+                                .anyRequest()
+                                .authenticated()
+                )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint())
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
@@ -61,17 +111,17 @@ public class SecurityConfig {
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
                 )
-        .build();
+                .build();
     }
 
     @Bean
-    AuthenticationManager manager (AuthenticationConfiguration configuration) throws Exception{
+    AuthenticationManager manager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
     @Bean
     AuthenticationEntryPoint authenticationEntryPoint() {
-        return (request, response, authException) ->{
+        return (request, response, authException) -> {
             System.out.println("AUTHENTICATION ENTRY POINT RUN");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         };

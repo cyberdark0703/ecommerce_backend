@@ -72,6 +72,8 @@ public class InvoiceService {
 
         repository.save(invoice);
 
+
+
         InvoiceResponse invoiceResponse = new InvoiceResponse();
 
         String invoiceId = "invoice_"+invoice.getId();
@@ -91,6 +93,8 @@ public class InvoiceService {
 
         invoiceResponse.setBorn(invoice.getBorn());
         invoiceResponse.setTotal_price(invoice.getTotal_price());
+
+        //throw new RuntimeException("TEST ROLLBACK");
 
         return invoiceResponse;
     }

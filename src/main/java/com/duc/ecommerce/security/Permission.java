@@ -3,5 +3,7 @@ package com.duc.ecommerce.security;
 public enum Permission {
     PRODUCT_CREATE,
     PRODUCT_UPDATE,
-    PRODUCT_DELETE
+    PRODUCT_DELETE,
+
+    CATEGORY_CREATE
 }
