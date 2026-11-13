@@ -74,26 +74,37 @@ public class UserService {
                 .toList();
     }
 
-    public UserResponse update(String id,UserUpdateRequest request){
+    public UserResponse update(String id, UserUpdateRequest request) {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
         String username = authentication.getName();
 
-        System.out.println("CURRENT USER = " + username);
+        // Kiểm tra ADMIN
+        boolean isAdmin = authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals("ROLE_ADMIN")
+                );
 
-        User user = repository.findById(id).orElseThrow(() -> new EcommerceException(ErrorCode.USER_NOT_FOUND));
+        User user = repository.findById(id)
+                .orElseThrow(() ->
+                        new EcommerceException(ErrorCode.USER_NOT_FOUND)
+                );
 
-        if (!username.equalsIgnoreCase(user.getName())){
+        // Nếu không phải ADMIN thì chỉ được cập nhật tài khoản của mình
+        if (!isAdmin && !username.equalsIgnoreCase(user.getName())) {
             throw new EcommerceException(ErrorCode.ACCESS_DENIED);
         }
 
         user.setName(request.getName());
+
         String hashedPassword = encoder.encode(request.getPassword());
         user.setPassword(hashedPassword);
-        repository.save(user);
-        return mapper.toUserResponse(user);
 
+        repository.save(user);
+
+        return mapper.toUserResponse(user);
     }
 
     public void delete(String id){
