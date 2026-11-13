@@ -28,5 +28,10 @@ public class Product {
 
     int price;
 
+    int stock;
+
+    @Version
+    int version;
+
     String imageName;
 }

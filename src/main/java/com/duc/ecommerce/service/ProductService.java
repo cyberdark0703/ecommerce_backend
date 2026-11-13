@@ -13,17 +13,19 @@ import com.duc.ecommerce.repository.ProductRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
@@ -77,15 +79,21 @@ public class ProductService {
     }
 
     @CachePut(value = "products", key = "#id")
-    public ProductResponse update(String id, ProductUpdateRequest request){
-        Product product = repository.findById(id).orElseThrow(()-> new EcommerceException(ErrorCode.USER_NOT_FOUND));
+    public ProductResponse update(String id, ProductUpdateRequest request) {
+
+        log.info(
+                "Product update - Thread: {}",
+                Thread.currentThread().getName()
+        );
+
+        Product product = repository.findById(id)
+                .orElseThrow(() -> new EcommerceException(ErrorCode.USER_NOT_FOUND));
 
         product.setName(request.getName());
         product.setPrice(request.getPrice());
 
         Category category = categoryRepository.findByName(request.getCategory_name());
         product.setCategory(category);
-
 
         repository.save(product);
 
@@ -115,6 +123,8 @@ public class ProductService {
         repository.delete(product);
     }
 
+
+
     public void saveImageName(String id, String fileName) {
         Product product = repository.findById(id)
                 .orElseThrow(() -> new EcommerceException(ErrorCode.USER_NOT_FOUND));
@@ -128,6 +138,40 @@ public class ProductService {
         return repository.findById(id)
                 .orElseThrow(() -> new EcommerceException(ErrorCode.USER_NOT_FOUND));
     }
+
+    @Transactional
+    public void purchase(String productId, int quantity) {
+        /*Product product = repository.findByIdWithLock(productId)
+                .orElseThrow(() ->
+                        new EcommerceException(ErrorCode.PRODUCT_NOT_FOUND));*/
+        Product product = repository.findById(productId)
+                .orElseThrow(() ->
+                        new EcommerceException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        /*if (product.getStock() >= quantity) {
+
+            product.setStock(product.getStock() - quantity);
+
+            repository.save(product);
+
+        } else {
+            throw new RuntimeException("Insufficient stock");
+        }*/
+
+        if (product.getStock() >= quantity) {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
+            product.setStock(product.getStock() - quantity);
+            repository.save(product);
+        } else {
+            throw new RuntimeException("Insufficient stock");
+        }
+    }
+
 
 
 }

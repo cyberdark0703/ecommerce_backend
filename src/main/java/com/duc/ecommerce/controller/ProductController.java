@@ -2,6 +2,7 @@ package com.duc.ecommerce.controller;
 
 import com.duc.ecommerce.dto.request.ProductCreateRequest;
 import com.duc.ecommerce.dto.request.ProductUpdateRequest;
+import com.duc.ecommerce.dto.request.PurchaseRequest;
 import com.duc.ecommerce.dto.response.ProductResponse;
 import com.duc.ecommerce.entity.Product;
 import com.duc.ecommerce.service.ProductService;
@@ -39,6 +40,14 @@ public class ProductController {
     @GetMapping("/read_one/{id}")
     ProductResponse read (@PathVariable String id){
         return service.read(id);
+    }
+
+    @PostMapping("/purchase/{productId}")
+    public void purchase(
+            @PathVariable String productId,
+            @RequestBody PurchaseRequest request
+    ) {
+        service.purchase(productId, request.getQuantity());
     }
 
     @GetMapping("/findbypricebetweenandcategory")
