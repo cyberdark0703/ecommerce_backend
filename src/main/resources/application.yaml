@@ -1,26 +1,26 @@
-
 server:
   port: 8080
   servlet:
     context-path: /ecommerce
 
-
 spring:
   application:
     name: ecommerce
+
   cache:
     type: redis
 
   datasource:
     url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/e-commerce}
-    driverClassName: "com.mysql.cj.jdbc.Driver"
-    password: ${DBMS_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DBMS_USERNAME:root}
+    password: ${DBMS_PASSWORD:root}
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
   servlet:
     multipart:
       max-file-size: 5MB
@@ -28,5 +28,5 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}

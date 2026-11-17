@@ -1,0 +1,9 @@
+.git
+.idea
+*.iml
+.env
+*.log
+target/*.jar.original
+target/classes
+target/test-classes
+target/surefire-reports
